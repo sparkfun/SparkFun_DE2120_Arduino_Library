@@ -160,11 +160,12 @@ class DE2120 {
   public:
     DE2120();
 
-    boolean begin(uint8_t baud = 115200);
-    boolean isConnected(); //Returns true if device's ID is what it should be
+    bool begin(Stream &serialPort);
+    bool isConnected(); //Returns true if device's ID is what it should be
 	  uint8_t getVersion(); //Queries device for its Version #
     void factoryDefault(); 
-    void sendCommand(char* cmd, char* arg = "");
+    bool sendCommand(char* cmd, char* arg = "");
+    bool readBarcode(char* resultBuffer, uint8_t size);
     void changeBaudRate(uint16_t baud);
     void changeBuzzerTone(uint8_t tone);
     void enableDecodeBeep();
@@ -189,14 +190,16 @@ class DE2120 {
     void disableAll2D();
     void startRead();
     void stopRead();
-    void enableSymbology(char* symbology);
-    void disableSymbology(char* symbology);
+    //void enableSymbology(char* symbology);
+    //void disableSymbology(char* symbology);
 
   private:
  
     char _commandString[10] = {0};
+    //char _responseBuffer[]
     uint16_t _baudRate = 115200;
+    Stream *_serial;
 
-};
+};  
 
 #endif
