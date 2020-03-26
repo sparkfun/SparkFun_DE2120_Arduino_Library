@@ -22,10 +22,11 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef _SPARKFUN_DE2120_ARDUINO_LIBRARY_H
 #define _SPARKFUN_DE2120_ARDUINO_LIBRARY_H
 #include "Arduino.h"
+
+#include <SoftwareSerial.h>
 
 //These are the commands we can send (Prepend "^_^" and append ".")
 #define COMMAND_START_SCAN "SCAN"
@@ -37,14 +38,14 @@
 //BEPPWM0 - Active Drive
 //BEPPWM1 - Passive Low Freq
 //BEPPWM2 - Passive Med Freq (default)
-//BEPPWM3 - Passive Hi Freq 
+//BEPPWM3 - Passive Hi Freq
 
 #define PROPERTY_DECODE_BEEP "BEPSUC"
 //BEPSUC1 - ON (default)
 //BEPSUC0 - OFF
 
 #define PROPERTY_BOOT_BEEP "BEPPWR"
-//BEPPWR1 - ON (default) 
+//BEPPWR1 - ON (default)
 //BEPPWR0 - OFF
 
 #define PROPERTY_FLASH_LIGHT "LAMENA"
@@ -124,8 +125,8 @@
 
 #define PROPERTY_KBD_CASE_CONVERSION "KBDCNV"
 //KBDCNV0 - No conversion (default)
-//KBDCNV1 - ALL CAPS 
-//KBDCNV2 - all lowercase 
+//KBDCNV1 - ALL CAPS
+//KBDCNV2 - all lowercase
 //KBDCNV3 - case-to-case
 
 // Barcode Style Enable/Disable
@@ -156,50 +157,56 @@
 #define PROPERTY_ENABLE_MICROPDF417 "MCFENA"
 #define PROPERTY_ENABLE_AZTEC "AZTENA"
 
-class DE2120 {
-  public:
-    DE2120();
+class DE2120
+{
+public:
+  DE2120();
 
-    bool begin(Stream &serialPort);
-    bool isConnected(); //Returns true if device's ID is what it should be
-	  uint8_t getVersion(); //Queries device for its Version #
-    void factoryDefault(); 
-    bool sendCommand(char* cmd, char* arg = "");
-    bool readBarcode(char* resultBuffer, uint8_t size);
-    void changeBaudRate(uint16_t baud);
-    void changeBuzzerTone(uint8_t tone);
-    void enableDecodeBeep();
-    void disableDecodeBeep();
-    void enableBootBeep();
-    void disableBootBeep();
-    void lightOn();
-    void lightOff();
-    void reticleOn();
-    void reticleOff();
-    void changeReadingArea(uint8_t percent);
-    void enableImageFlipping();
-    void disableImageFlipping();
-    void USBMode(char* mode);
-    void enableContinuousRead(uint8_t repeatInterval);
-    void disableContinuousRead();
-    void enableMotionSense(uint8_t sensitivity);
-    void disableMotionSense();
-    void enableAll1D();
-    void disableAll1D();
-    void enableAll2D();
-    void disableAll2D();
-    void startRead();
-    void stopRead();
-    //void enableSymbology(char* symbology);
-    //void disableSymbology(char* symbology);
+  DE2120(HardwareSerial &device) { hwStream = &device; }
+  DE2120(SoftwareSerial &device) { swStream = &device; }
 
-  private:
- 
-    char _commandString[10] = {0};
-    //char _responseBuffer[]
-    uint16_t _baudRate = 115200;
-    Stream *_serial;
+  bool begin(Stream &serialPort);
+  bool isConnected();   //Returns true if device's ID is what it should be
+  uint8_t getVersion(); //Queries device for its Version #
+  void factoryDefault();
+  bool sendCommand(char *cmd, char *arg = "");
+  bool readBarcode(char *resultBuffer, uint8_t size);
+  void changeBaudRate(uint16_t baud);
+  void changeBuzzerTone(uint8_t tone);
+  void enableDecodeBeep();
+  void disableDecodeBeep();
+  void enableBootBeep();
+  void disableBootBeep();
+  void lightOn();
+  void lightOff();
+  void reticleOn();
+  void reticleOff();
+  void changeReadingArea(uint8_t percent);
+  void enableImageFlipping();
+  void disableImageFlipping();
+  void USBMode(char *mode);
+  void enableContinuousRead(uint8_t repeatInterval);
+  void disableContinuousRead();
+  void enableMotionSense(uint8_t sensitivity);
+  void disableMotionSense();
+  void enableAll1D();
+  void disableAll1D();
+  void enableAll2D();
+  void disableAll2D();
+  void startRead();
+  void stopRead();
+  //void enableSymbology(char* symbology);
+  //void disableSymbology(char* symbology);
 
-};  
+private:
+  char _commandString[10] = {0};
+  //char _responseBuffer[]
+  uint16_t _baudRate = 115200;
+  Stream *_serial;
+
+  HardwareSerial *hwStream;
+  SoftwareSerial *swStream;
+  Stream *stream;
+};
 
 #endif

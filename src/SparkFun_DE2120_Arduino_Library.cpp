@@ -28,7 +28,6 @@
 //Constructor
 DE2120::DE2120()
 {
-
 }
 
 //Initializes the device with basic settings
@@ -36,9 +35,23 @@ DE2120::DE2120()
 bool DE2120::begin(Stream &serialPort)
 {
   _serial = &serialPort;
-  if (isConnected() == false) {
+
+  stream = !hwStream ? (Stream *)swStream : hwStream;
+  if (hwStream)
+  {
+    hwStream->begin(9600);
+  }
+  else
+  {
+    swStream->begin(9600);
+  }
+
+  if (isConnected() == false)
+  {
     return (false); //No device detected
-  } else {
+  }
+  else
+  {
     return (true); //We're all setup!
   }
 }
@@ -52,7 +65,9 @@ bool DE2120::isConnected()
   if (sendCommand(COMMAND_GET_VERSION))
   {
     return (true);
-  } else { //
+  }
+  else
+  { //
     return (false);
   }
 }
@@ -68,7 +83,7 @@ void DE2120::factoryDefault()
 // module, then check the serial buffer for a response.
 // Return TRUE if response contains ACK character, else
 // return FALSE
-bool DE2120::sendCommand(char* cmd, char* arg)
+bool DE2120::sendCommand(char *cmd, char *arg)
 {
   char start[] = "^_^";
   char end[] = ".";
@@ -81,25 +96,29 @@ bool DE2120::sendCommand(char* cmd, char* arg)
 
   uint8_t timeout = millis() + 3000;
 
-    while(millis() < timeout)
+  while (millis() < timeout)
   {
-    if(_serial->available())
+    if (_serial->available())
     {
       bool ACK = false;
-      while(_serial->available())
+      while (_serial->available())
       {
-        if(_serial->read() == 0x06)
+        if (_serial->read() == 0x06)
         {
           ACK = true;
         }
       }
-      if(ACK)
+      if (ACK)
       {
         return true;
-      }else{
+      }
+      else
+      {
         return false;
       }
-    }else{
+    }
+    else
+    {
       return false;
     }
   }
@@ -112,67 +131,79 @@ bool DE2120::sendCommand(char* cmd, char* arg)
 // to it. If a CR is found, we overwrite the
 // result buffer until either it's full or we
 // reach a CR in the receive buffer.
-bool DE2120::readBarcode(char* resultBuffer, uint8_t size)
+bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
 {
 
-  if (!_serial->available()) {
+  if (!_serial->available())
+  {
     return false;
-  } else {
+  }
+  else
+  {
     bool crFound = false;
-    for (uint8_t idx = 0; idx < size; idx++) {
-      if (resultBuffer[idx] == 13) {
+    for (uint8_t idx = 0; idx < size; idx++)
+    {
+      if (resultBuffer[idx] == 13)
+      {
         crFound = true;
       }
     }
-    if (crFound) {
+    if (crFound)
+    {
       resultBuffer[0] = 0;
     }
-    for (uint8_t idx = strlen(resultBuffer); idx < size; idx++) {
-      if (_serial->available()) {
+    for (uint8_t idx = strlen(resultBuffer); idx < size; idx++)
+    {
+      if (_serial->available())
+      {
         resultBuffer[idx] = _serial->read();
-        if (resultBuffer[idx] == 13) {
+        if (resultBuffer[idx] == 13)
+        {
           return true;
         }
-      } else {
+      }
+      else
+      {
         return false;
       }
     }
   }
-
 }
 
 // Change the serial baud rate for the barcode module (default 115200)
 void DE2120::changeBaudRate(uint16_t baud)
 {
   uint8_t arg = 10;
-  switch (baud) {
-    case 1200:
-      arg = 2;
-      break;
-    case 2400:
-      arg = 3;
-      break;
-    case 4800:
-      arg = 4;
-      break;
-    case 9600:
-      arg = 5;
-      break;
-    case 19200:
-      arg = 6;
-      break;
-    case 38400:
-      arg = 7;
-      break;
-    case 57600:
-      arg = 8;
-      break;
-    case 115200:
-      arg = 9;
-      break;
+  switch (baud)
+  {
+  case 1200:
+    arg = 2;
+    break;
+  case 2400:
+    arg = 3;
+    break;
+  case 4800:
+    arg = 4;
+    break;
+  case 9600:
+    arg = 5;
+    break;
+  case 19200:
+    arg = 6;
+    break;
+  case 38400:
+    arg = 7;
+    break;
+  case 57600:
+    arg = 8;
+    break;
+  case 115200:
+    arg = 9;
+    break;
   }
   // only change baud rate if a valid value is passed
-  if (arg < 10) {
+  if (arg < 10)
+  {
     sendCommand(PROPERTY_BAUD_RATE, arg);
   }
 }
@@ -181,7 +212,8 @@ void DE2120::changeBaudRate(uint16_t baud)
 void DE2120::changeBuzzerTone(uint8_t tone)
 {
   // only change if a valid value is passed
-  if (tone > 0 && tone < 4) {
+  if (tone > 0 && tone < 4)
+  {
     sendCommand(PROPERTY_BUZZER_FREQ, '0' + tone); // conv single-digit int to char by adding to '0'
   }
 }
@@ -230,25 +262,27 @@ void DE2120::reticleOff()
 void DE2120::changeReadingArea(uint8_t percent)
 {
   uint8_t arg = 5;
-  switch (percent) {
-    case 100:
-      arg = 0;
-      break;
-    case 80:
-      arg = 1;
-      break;
-    case 60:
-      arg = 2;
-      break;
-    case 40:
-      arg = 3;
-      break;
-    case 20:
-      arg = 4;
-      break;
+  switch (percent)
+  {
+  case 100:
+    arg = 0;
+    break;
+  case 80:
+    arg = 1;
+    break;
+  case 60:
+    arg = 2;
+    break;
+  case 40:
+    arg = 3;
+    break;
+  case 20:
+    arg = 4;
+    break;
   }
   // only change if a valid value is passed
-  if (arg < 5) {
+  if (arg < 5)
+  {
     sendCommand(PROPERTY_READING_AREA, arg);
   }
 }
@@ -265,10 +299,11 @@ void DE2120::disableImageFlipping()
 
 // Enable USB Communication and set the mode
 // THIS WILL MAKE THE MODULE STOP RESPONDING ON TTL
-void DE2120::USBMode(char* mode)
+void DE2120::USBMode(char *mode)
 {
   // reject invalid mode strings
-  if (mode == 'KBD' || mode == 'HID' || mode == 'VIC') {
+  if (mode == 'KBD' || mode == 'HID' || mode == 'VIC')
+  {
     sendCommand(PROPERTY_COMM_MODE, mode);
   }
 }
@@ -279,7 +314,8 @@ void DE2120::enableContinuousRead(uint8_t repeatInterval)
 {
   sendCommand(PROPERTY_READING_MODE, 'CNT');
   // reject invalid parameters
-  if (repeatInterval < 4) {
+  if (repeatInterval < 4)
+  {
     sendCommand(PROPERTY_CONTINUOUS_MODE_INTERVAL, '0' + repeatInterval); // conv single-digit int to char by adding to '0'
   }
 }
@@ -294,7 +330,8 @@ void DE2120::enableMotionSense(uint8_t sensitivity)
 {
   sendCommand(PROPERTY_READING_MODE, 'MDH');
   // reject invalid sensitivity values
-  if (sensitivity == 15 || sensitivity == 20 || sensitivity == 30 || sensitivity == 50 || sensitivity == 100) {
+  if (sensitivity == 15 || sensitivity == 20 || sensitivity == 30 || sensitivity == 50 || sensitivity == 100)
+  {
     sendCommand(PROPERTY_COMM_MODE, '0' + sensitivity); // conv single-digit int to char by adding to '0'
   }
 }
