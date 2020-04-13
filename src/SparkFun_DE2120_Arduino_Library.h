@@ -47,11 +47,11 @@
 //BEPPWR1 - ON (default) 
 //BEPPWR0 - OFF
 
-#define PROPERTY_FLASH_LIGHT "LAMENA"
+#define PROPERTY_FLASH_LIGHT 'LAMENA'
 //LAMENA1 - ON (default)
 //LAMENA0 - OFF
 
-#define PROPERTY_AIM_LIGHT "AIMENA"
+#define PROPERTY_AIM_LIGHT 'AIMENA'
 //AIMENA1 - ON (default)
 //AIMENA0 - OFF
 
@@ -165,24 +165,25 @@ class DE2120 {
 	  uint8_t getVersion(); //Queries device for its Version #
     void factoryDefault(); 
     bool sendCommand(char* cmd, char* arg = "");
-    bool readBarcode(char* resultBuffer, uint8_t size);
+    bool available();
+    int read();
     void changeBaudRate(uint16_t baud);
     void changeBuzzerTone(uint8_t tone);
     void enableDecodeBeep();
     void disableDecodeBeep();
     void enableBootBeep();
     void disableBootBeep();
-    void lightOn();
-    void lightOff();
-    void reticleOn();
-    void reticleOff();
+    bool lightOn();
+    bool lightOff();
+    bool reticleOn();
+    bool reticleOff();
     void changeReadingArea(uint8_t percent);
     void enableImageFlipping();
     void disableImageFlipping();
     void USBMode(char* mode);
-    void enableContinuousRead(uint8_t repeatInterval);
+    void enableContinuousRead(uint8_t repeatInterval = 2);
     void disableContinuousRead();
-    void enableMotionSense(uint8_t sensitivity);
+    void enableMotionSense(uint8_t sensitivity = 50);
     void disableMotionSense();
     void enableAll1D();
     void disableAll1D();
@@ -196,7 +197,6 @@ class DE2120 {
   private:
  
     char _commandString[10] = {0};
-    //char _responseBuffer[]
     uint16_t _baudRate = 115200;
     Stream *_serial;
 

@@ -26,7 +26,7 @@
 #include "Arduino.h"
 
 //Constructor
-DE2120::DE2120()
+DE2120::DE2120(void)
 {
 
 }
@@ -36,11 +36,7 @@ DE2120::DE2120()
 bool DE2120::begin(Stream &serialPort)
 {
   _serial = &serialPort;
-  if (isConnected() == false) {
-    return (false); //No device detected
-  } else {
-    return (true); //We're all setup!
-  }
+  return isConnected();
 }
 
 // Try to retrieve the firmware version number as a
@@ -49,12 +45,7 @@ bool DE2120::begin(Stream &serialPort)
 // We don't ever check the actual firmware number.
 bool DE2120::isConnected()
 {
-  if (sendCommand(COMMAND_GET_VERSION))
-  {
-    return (true);
-  } else { //
-    return (false);
-  }
+  return sendCommand(COMMAND_GET_VERSION);
 }
 
 // Revert module to all factory default settings
@@ -62,6 +53,16 @@ bool DE2120::isConnected()
 void DE2120::factoryDefault()
 {
   sendCommand(COMMAND_SET_DEFAULTS);
+}
+
+bool DE2120::available()
+{
+  return _serial->available();
+}
+
+int DE2120::read()
+{
+  return _serial->read();
 }
 
 // Construct a command or parameter and send it to the
@@ -79,7 +80,8 @@ bool DE2120::sendCommand(char* cmd, char* arg)
   strcat(_commandString, end);
   _serial->print(_commandString);
 
-  uint8_t timeout = millis() + 3000;
+  uint32_t timeout = millis();
+  timeout += 3000;
 
     while(millis() < timeout)
   {
@@ -88,7 +90,10 @@ bool DE2120::sendCommand(char* cmd, char* arg)
       bool ACK = false;
       while(_serial->available())
       {
-        if(_serial->read() == 0x06)
+        delay(50);
+        char read = _serial->read();
+        //Serial.println(read);
+        if(read == 0x06)
         {
           ACK = true;
         }
@@ -99,46 +104,9 @@ bool DE2120::sendCommand(char* cmd, char* arg)
       }else{
         return false;
       }
-    }else{
-      return false;
     }
   }
-}
-
-// Check the receive buffer for serial data
-// from the barcode scanner. If there's data,
-// check the result buffer for a CR (marks a
-// complete scan) and if it contains none, add
-// to it. If a CR is found, we overwrite the
-// result buffer until either it's full or we
-// reach a CR in the receive buffer.
-bool DE2120::readBarcode(char* resultBuffer, uint8_t size)
-{
-
-  if (!_serial->available()) {
-    return false;
-  } else {
-    bool crFound = false;
-    for (uint8_t idx = 0; idx < size; idx++) {
-      if (resultBuffer[idx] == 13) {
-        crFound = true;
-      }
-    }
-    if (crFound) {
-      resultBuffer[0] = 0;
-    }
-    for (uint8_t idx = strlen(resultBuffer); idx < size; idx++) {
-      if (_serial->available()) {
-        resultBuffer[idx] = _serial->read();
-        if (resultBuffer[idx] == 13) {
-          return true;
-        }
-      } else {
-        return false;
-      }
-    }
-  }
-
+  return false;
 }
 
 // Change the serial baud rate for the barcode module (default 115200)
@@ -207,23 +175,23 @@ void DE2120::disableBootBeep()
 }
 
 // Control the white illumination LED
-void DE2120::lightOn()
+bool DE2120::lightOn()
 {
-  sendCommand(PROPERTY_FLASH_LIGHT, '1');
+  return sendCommand(PROPERTY_FLASH_LIGHT, '1');
 }
-void DE2120::lightOff()
+bool DE2120::lightOff()
 {
-  sendCommand(PROPERTY_FLASH_LIGHT, '0');
+  return sendCommand(PROPERTY_FLASH_LIGHT, '0');
 }
 
 // Control the red scan line
-void DE2120::reticleOn()
+bool DE2120::reticleOn()
 {
-  sendCommand(PROPERTY_AIM_LIGHT, '1');
+  return sendCommand(PROPERTY_AIM_LIGHT, '1');
 }
-void DE2120::reticleOff()
+bool DE2120::reticleOff()
 {
-  sendCommand(PROPERTY_AIM_LIGHT, '0');
+  return sendCommand(PROPERTY_AIM_LIGHT, '0');
 }
 
 // Change the percentage of the frame to scan for barcodes
@@ -292,11 +260,11 @@ void DE2120::disableContinuousRead()
 // if enabling, set the sensitivity level
 void DE2120::enableMotionSense(uint8_t sensitivity)
 {
+  char arg[3];
+  itoa(sensitivity, arg, 10);
   sendCommand(PROPERTY_READING_MODE, 'MDH');
-  // reject invalid sensitivity values
-  if (sensitivity == 15 || sensitivity == 20 || sensitivity == 30 || sensitivity == 50 || sensitivity == 100) {
-    sendCommand(PROPERTY_COMM_MODE, '0' + sensitivity); // conv single-digit int to char by adding to '0'
-  }
+  sendCommand(PROPERTY_COMM_MODE, '0' + arg);
+
 }
 void DE2120::disableMotionSense()
 {
