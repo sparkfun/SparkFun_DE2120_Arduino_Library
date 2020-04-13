@@ -72,7 +72,7 @@ void DE2120::factoryDefault()
 // module, then check the serial buffer for a response.
 // Return TRUE if response contains ACK character, else
 // return FALSE
-bool DE2120::sendCommand(char *cmd, char *arg)
+bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
 {
   char start[] = "^_^";
   char end[] = ".";
@@ -83,7 +83,7 @@ bool DE2120::sendCommand(char *cmd, char *arg)
   strcat(_commandString, end);
   _serial->print(_commandString);
 
-  uint8_t timeout = millis() + 3000;
+  uint32_t timeout = millis() + maxWaitInms;
 
   while (millis() < timeout)
   {
