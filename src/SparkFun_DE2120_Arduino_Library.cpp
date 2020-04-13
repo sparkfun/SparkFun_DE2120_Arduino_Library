@@ -25,6 +25,8 @@
 #include "SparkFun_DE2120_Arduino_Library.h"
 #include "Arduino.h"
 
+#include <SoftwareSerial.h>
+
 //Constructor
 DE2120::DE2120()
 {
@@ -32,17 +34,30 @@ DE2120::DE2120()
 
 //Initializes the device with basic settings
 //Returns false if device is not detected
-bool DE2120::begin(Stream &serialPort)
+bool DE2120::begin(HardwareSerial &serialPort)
 {
-  _serial = &serialPort;
+  //Trick comes from: https://forum.arduino.cc/index.php?topic=503782.msg3435988#msg3435988
+  hwStream = &serialPort;
+  swStream = NULL;
+  _serial = hwStream;
+
   if (isConnected() == false)
-  {
     return (false); //No device detected
-  }
-  else
-  {
-    return (true); //We're all setup!
-  }
+
+  return (true); //We're all setup!
+}
+
+bool DE2120::begin(SoftwareSerial &serialPort)
+{
+  //Serial.println("I am software");
+  swStream = &serialPort;
+  hwStream = NULL;
+  _serial = swStream;
+
+  if (isConnected() == false)
+    return (false); //No device detected
+
+  return (true); //We're all setup!
 }
 
 // Try to retrieve the firmware version number as a
@@ -51,14 +66,43 @@ bool DE2120::begin(Stream &serialPort)
 // We don't ever check the actual firmware number.
 bool DE2120::isConnected()
 {
-  if (sendCommand(COMMAND_GET_VERSION))
-  {
-    return (true);
-  }
+  //Attempt initial comm at 9600
+  _baudRate = 9600;
+
+  if (hwStream)
+    hwStream->begin(_baudRate);
   else
-  { //
-    return (false);
-  }
+    swStream->begin(_baudRate);
+
+  if (sendCommand(COMMAND_GET_VERSION, "", 800))
+    return (true);
+
+  //If we failed, try again at the factory default of 115200
+  if (hwStream)
+    hwStream->begin(115200);
+  else
+    swStream->begin(115200);
+
+  delay(10);
+
+  sendCommand(PROPERTY_BAUD_RATE, "5", 3000); //Goto 9600bps
+
+  if (hwStream)
+    hwStream->begin(115200);
+  else
+    swStream->begin(115200);
+
+  delay(10);
+
+  sendCommand(COMMAND_GET_VERSION, "", 800);
+  Serial.print("Stop");
+  while (1)
+    ;
+
+  if (sendCommand(COMMAND_GET_VERSION, "", 800))
+    return (true);
+
+  return (false);
 }
 
 // Revert module to all factory default settings
@@ -74,14 +118,18 @@ void DE2120::factoryDefault()
 // return FALSE
 bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
 {
+  char commandString[14] = {'\0'};
   char start[] = "^_^";
   char end[] = ".";
-  strcpy(_commandString, "");
-  strcat(_commandString, start);
-  strcat(_commandString, cmd);
-  strcat(_commandString, arg);
-  strcat(_commandString, end);
-  _serial->print(_commandString);
+
+  strcat(commandString, start);
+  strcat(commandString, cmd);
+  strcat(commandString, arg);
+  strcat(commandString, end);
+
+  _serial->print(commandString);
+
+  Serial.println(maxWaitInms);
 
   uint32_t timeout = millis() + maxWaitInms;
 
@@ -89,6 +137,7 @@ bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
   {
     if (_serial->available())
     {
+      Serial.println("!");
       bool ACK = false;
       while (_serial->available())
       {
@@ -111,6 +160,8 @@ bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
       return false;
     }
   }
+
+  delay(1);
 }
 
 // Check the receive buffer for serial data

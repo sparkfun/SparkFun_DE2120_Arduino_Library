@@ -26,6 +26,8 @@
 #define _SPARKFUN_DE2120_ARDUINO_LIBRARY_H
 #include "Arduino.h"
 
+#include <SoftwareSerial.h>
+
 //These are the commands we can send (Prepend "^_^" and append ".")
 #define COMMAND_START_SCAN "SCAN"
 #define COMMAND_STOP_SCAN "SLEEP"
@@ -160,7 +162,9 @@ class DE2120
 public:
   DE2120();
 
-  bool begin(Stream &serialPort);
+  bool begin(HardwareSerial &serialPort);
+  bool begin(SoftwareSerial &serialPort);
+
   bool isConnected();   //Returns true if device's ID is what it should be
   uint8_t getVersion(); //Queries device for its Version #
   void factoryDefault();
@@ -194,9 +198,11 @@ public:
   //void disableSymbology(char* symbology);
 
 private:
-  char _commandString[10] = {0};
   //char _responseBuffer[]
   uint16_t _baudRate = 115200;
+
+  HardwareSerial *hwStream;
+  SoftwareSerial *swStream;
   Stream *_serial;
 };
 
