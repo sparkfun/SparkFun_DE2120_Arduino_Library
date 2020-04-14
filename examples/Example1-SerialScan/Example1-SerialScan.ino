@@ -1,5 +1,5 @@
 /*
-  Begin scanning for bar codes
+  Begin scanning for barcodes
   By: Nick Poole
   SparkFun Electronics
   Date: April 14th 2020
