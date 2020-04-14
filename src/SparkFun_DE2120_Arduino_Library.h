@@ -51,11 +51,11 @@
 //BEPPWR1 - ON (default)
 //BEPPWR0 - OFF
 
-#define PROPERTY_FLASH_LIGHT 'LAMENA'
+#define PROPERTY_FLASH_LIGHT "LAMENA"
 //LAMENA1 - ON (default)
 //LAMENA0 - OFF
 
-#define PROPERTY_AIM_LIGHT 'AIMENA'
+#define PROPERTY_AIM_LIGHT "AIMENA"
 //AIMENA1 - ON (default)
 //AIMENA0 - OFF
 
@@ -173,6 +173,8 @@ public:
   bool factoryDefault();
   bool sendCommand(const char *cmd, const char *arg = "", uint32_t maxWaitInms = 3000);
   bool readBarcode(char *resultBuffer, uint8_t size);
+  bool available();
+  int read();
   bool changeBaudRate(uint32_t baud);
   bool changeBuzzerTone(uint8_t tone);
   bool enableDecodeBeep();
