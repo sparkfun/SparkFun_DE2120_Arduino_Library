@@ -170,33 +170,33 @@ public:
 
   bool isConnected();   //Returns true if device's ID is what it should be
   uint8_t getVersion(); //Queries device for its Version #
-  void factoryDefault();
+  bool factoryDefault();
   bool sendCommand(char *cmd, char *arg = "", uint32_t maxWaitInms = 3000);
   bool readBarcode(char *resultBuffer, uint8_t size);
-  void changeBaudRate(uint16_t baud);
-  void changeBuzzerTone(uint8_t tone);
-  void enableDecodeBeep();
-  void disableDecodeBeep();
-  void enableBootBeep();
-  void disableBootBeep();
-  void lightOn();
-  void lightOff();
-  void reticleOn();
-  void reticleOff();
-  void changeReadingArea(uint8_t percent);
-  void enableImageFlipping();
-  void disableImageFlipping();
-  void USBMode(char *mode);
-  void enableContinuousRead(uint8_t repeatInterval);
-  void disableContinuousRead();
-  void enableMotionSense(uint8_t sensitivity);
-  void disableMotionSense();
-  void enableAll1D();
-  void disableAll1D();
-  void enableAll2D();
-  void disableAll2D();
-  void startRead();
-  void stopRead();
+  bool changeBaudRate(uint16_t baud);
+  bool changeBuzzerTone(uint8_t tone);
+  bool enableDecodeBeep();
+  bool disableDecodeBeep();
+  bool enableBootBeep();
+  bool disableBootBeep();
+  bool lightOn();
+  bool lightOff();
+  bool reticleOn();
+  bool reticleOff();
+  bool changeReadingArea(uint8_t percent);
+  bool enableImageFlipping();
+  bool disableImageFlipping();
+  bool USBMode(char *mode);
+  bool enableContinuousRead(uint8_t repeatInterval);
+  bool disableContinuousRead();
+  bool enableMotionSense(uint8_t sensitivity);
+  bool disableMotionSense();
+  bool enableAll1D();
+  bool disableAll1D();
+  bool enableAll2D();
+  bool disableAll2D();
+  bool startRead();
+  bool stopRead();
   //void enableSymbology(char* symbology);
   //void disableSymbology(char* symbology);
 

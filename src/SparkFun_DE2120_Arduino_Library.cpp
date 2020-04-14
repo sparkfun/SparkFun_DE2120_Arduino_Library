@@ -110,9 +110,9 @@ bool DE2120::isConnected()
 
 // Revert module to all factory default settings
 // THIS WILL DISCONNECT THE MODULE FROM SERIAL
-void DE2120::factoryDefault()
+bool DE2120::factoryDefault()
 {
-  sendCommand(COMMAND_SET_DEFAULTS);
+  return (sendCommand(COMMAND_SET_DEFAULTS));
 }
 
 // Construct a command or parameter and send it to the
@@ -189,7 +189,7 @@ bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
 }
 
 // Change the serial baud rate for the barcode module (default 115200)
-void DE2120::changeBaudRate(uint16_t baud)
+bool DE2120::changeBaudRate(uint16_t baud)
 {
   uint8_t arg = 10;
   switch (baud)
@@ -222,62 +222,64 @@ void DE2120::changeBaudRate(uint16_t baud)
   // only change baud rate if a valid value is passed
   if (arg < 10)
   {
-    sendCommand(PROPERTY_BAUD_RATE, arg);
+    return (sendCommand(PROPERTY_BAUD_RATE, arg));
   }
+  return (false);
 }
 
 // Change the beep frequency between low, med, and high
-void DE2120::changeBuzzerTone(uint8_t tone)
+bool DE2120::changeBuzzerTone(uint8_t tone)
 {
   // only change if a valid value is passed
   if (tone > 0 && tone < 4)
   {
-    sendCommand(PROPERTY_BUZZER_FREQ, '0' + tone); // conv single-digit int to char by adding to '0'
+    return (sendCommand(PROPERTY_BUZZER_FREQ, '0' + tone)); // conv single-digit int to char by adding to '0'
   }
+  return (false);
 }
 
 // Enable and Disable Beep sound on successful read
-void DE2120::enableDecodeBeep()
+bool DE2120::enableDecodeBeep()
 {
-  sendCommand(PROPERTY_DECODE_BEEP, "1");
+  return (sendCommand(PROPERTY_DECODE_BEEP, "1"));
 }
-void DE2120::disableDecodeBeep()
+bool DE2120::disableDecodeBeep()
 {
-  sendCommand(PROPERTY_DECODE_BEEP, "0");
+  return (sendCommand(PROPERTY_DECODE_BEEP, "0"));
 }
 
 // Enable and Disable Beed sound on startup
-void DE2120::enableBootBeep()
+bool DE2120::enableBootBeep()
 {
-  sendCommand(PROPERTY_BOOT_BEEP, "1");
+  return (sendCommand(PROPERTY_BOOT_BEEP, "1"));
 }
-void DE2120::disableBootBeep()
+bool DE2120::disableBootBeep()
 {
-  sendCommand(PROPERTY_BOOT_BEEP, "0");
+  return (sendCommand(PROPERTY_BOOT_BEEP, "0"));
 }
 
 // Control the white illumination LED
-void DE2120::lightOn()
+bool DE2120::lightOn()
 {
-  sendCommand(PROPERTY_FLASH_LIGHT, "1");
+  return (sendCommand(PROPERTY_FLASH_LIGHT, "1"));
 }
-void DE2120::lightOff()
+bool DE2120::lightOff()
 {
-  sendCommand(PROPERTY_FLASH_LIGHT, "0");
+  return (sendCommand(PROPERTY_FLASH_LIGHT, "0"));
 }
 
 // Control the red scan line
-void DE2120::reticleOn()
+bool DE2120::reticleOn()
 {
-  sendCommand(PROPERTY_AIM_LIGHT, "1");
+  return (sendCommand(PROPERTY_AIM_LIGHT, "1"));
 }
-void DE2120::reticleOff()
+bool DE2120::reticleOff()
 {
-  sendCommand(PROPERTY_AIM_LIGHT, "0");
+  return (sendCommand(PROPERTY_AIM_LIGHT, "0"));
 }
 
 // Change the percentage of the frame to scan for barcodes
-void DE2120::changeReadingArea(uint8_t percent)
+bool DE2120::changeReadingArea(uint8_t percent)
 {
   uint8_t arg = 5;
   switch (percent)
@@ -301,92 +303,96 @@ void DE2120::changeReadingArea(uint8_t percent)
   // only change if a valid value is passed
   if (arg < 5)
   {
-    sendCommand(PROPERTY_READING_AREA, arg);
+    return (sendCommand(PROPERTY_READING_AREA, arg));
   }
+  return (false);
 }
 
 // Enable and Disable Mirror Image reading
-void DE2120::enableImageFlipping()
+bool DE2120::enableImageFlipping()
 {
-  sendCommand(PROPERTY_MIRROR_FLIP, "1");
+  return (sendCommand(PROPERTY_MIRROR_FLIP, "1"));
 }
-void DE2120::disableImageFlipping()
+bool DE2120::disableImageFlipping()
 {
-  sendCommand(PROPERTY_MIRROR_FLIP, "0");
+  return (sendCommand(PROPERTY_MIRROR_FLIP, "0"));
 }
 
 // Enable USB Communication and set the mode
 // THIS WILL MAKE THE MODULE STOP RESPONDING ON TTL
-void DE2120::USBMode(char *mode)
+bool DE2120::USBMode(char *mode)
 {
   // reject invalid mode strings
   if (mode == "KBD" || mode == "HID" || mode == "VIC")
   {
-    sendCommand(PROPERTY_COMM_MODE, mode);
+    return (sendCommand(PROPERTY_COMM_MODE, mode));
   }
+  return (false);
 }
 
 // Enable and disable continuous read mode
 // if enabling, set the repeat interval for same-code reads
-void DE2120::enableContinuousRead(uint8_t repeatInterval)
+bool DE2120::enableContinuousRead(uint8_t repeatInterval)
 {
-  sendCommand(PROPERTY_READING_MODE, "CNT");
   // reject invalid parameters
   if (repeatInterval < 4)
   {
-    sendCommand(PROPERTY_CONTINUOUS_MODE_INTERVAL, '0' + repeatInterval); // conv single-digit int to char by adding to '0'
+    sendCommand(PROPERTY_READING_MODE, "CNT");
+    return (sendCommand(PROPERTY_CONTINUOUS_MODE_INTERVAL, '0' + repeatInterval)); // conv single-digit int to char by adding to '0'
   }
+  return (false);
 }
-void DE2120::disableContinuousRead()
+bool DE2120::disableContinuousRead()
 {
-  sendCommand(PROPERTY_READING_MODE, "MAN");
+  return (sendCommand(PROPERTY_READING_MODE, "MAN"));
 }
 
 // Enable and disable motion sensitive read mode
 // if enabling, set the sensitivity level
-void DE2120::enableMotionSense(uint8_t sensitivity)
+bool DE2120::enableMotionSense(uint8_t sensitivity)
 {
-  sendCommand(PROPERTY_READING_MODE, "MDH");
   // reject invalid sensitivity values
   if (sensitivity == 15 || sensitivity == 20 || sensitivity == 30 || sensitivity == 50 || sensitivity == 100)
   {
-    sendCommand(PROPERTY_COMM_MODE, '0' + sensitivity); // conv single-digit int to char by adding to '0'
+    sendCommand(PROPERTY_READING_MODE, "MDH");
+    return (sendCommand(PROPERTY_COMM_MODE, '0' + sensitivity)); // conv single-digit int to char by adding to '0'
   }
+  return (false);
 }
-void DE2120::disableMotionSense()
+bool DE2120::disableMotionSense()
 {
-  sendCommand(PROPERTY_READING_MODE, "MAN");
+  return (sendCommand(PROPERTY_READING_MODE, "MAN"));
 }
 
 // Enable or Disable decoding of all 1D symbologies
-void DE2120::enableAll1D()
+bool DE2120::enableAll1D()
 {
-  sendCommand(PROPERTY_ENABLE_ALL_1D);
+  return (sendCommand(PROPERTY_ENABLE_ALL_1D));
 }
-void DE2120::disableAll1D()
+bool DE2120::disableAll1D()
 {
-  sendCommand(PROPERTY_DISABLE_ALL_1D);
+  return (sendCommand(PROPERTY_DISABLE_ALL_1D));
 }
 
 // Enable or Disable decoding of all 2D symbologies
-void DE2120::enableAll2D()
+bool DE2120::enableAll2D()
 {
-  sendCommand(PROPERTY_ENABLE_ALL_2D);
+  return (sendCommand(PROPERTY_ENABLE_ALL_2D));
 }
-void DE2120::disableAll2D()
+bool DE2120::disableAll2D()
 {
-  sendCommand(PROPERTY_ENABLE_ALL_2D);
+  return (sendCommand(PROPERTY_ENABLE_ALL_2D));
 }
 
 // Start or stop reading when in Trigger Mode (DEFAULT)
 // Module will automatically stop reading after a few seconds
-void DE2120::startRead()
+bool DE2120::startRead()
 {
-  sendCommand(COMMAND_START_SCAN);
+  return (sendCommand(COMMAND_START_SCAN));
 }
-void DE2120::stopRead()
+bool DE2120::stopRead()
 {
-  sendCommand(COMMAND_STOP_SCAN);
+  return (sendCommand(COMMAND_STOP_SCAN));
 }
 
 /*
