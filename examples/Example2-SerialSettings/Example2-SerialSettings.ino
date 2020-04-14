@@ -30,6 +30,8 @@ DE2120 scanner;
 #define BUFFER_LEN 40
 char scanBuffer[BUFFER_LEN];
 
+bool continuousScan = false;
+
 void setup()
 {
   Serial.begin(115200);
@@ -46,11 +48,8 @@ void setup()
 
 void loop()
 {
-  Serial.println("...");
-  Serial.println("...");
-  Serial.println("...");
-
-  Serial.println("SparkX DE2120 Barcode Scanner Library");
+  Serial.println();
+  Serial.println("SparkFun DE2120 Barcode Scanner Library");
   Serial.println("-------------------------------------");
   Serial.println("1) Start Scan");
   Serial.println("2) Stop Scan");
@@ -60,106 +59,99 @@ void loop()
   Serial.println("6) Set Reading Mode");
   Serial.println("7) Enable Disable Symbologies");
   Serial.println("-------------------------------------");
-  Serial.println("Select an option number:");
+  Serial.print("Select an option number: ");
 
-  while (!Serial.available())
+  while (Serial.available() == false)
   {
-  };
+    //Wait for user to send char
+  }
 
   char response = Serial.read();
 
-  delay(10);
-
-  while (Serial.available())
+  //Throw out newline and return chars
+  if (response != '\r' && response != '\n')
   {
-    Serial.read();
-    delay(10);
-  };
+    switch (response)
+    {
 
-  switch (response)
-  {
+      case '1':
+        scanner.sendCommand("SCAN", "");
+        continuousScan = true;
+        break;
 
-  case '1':
-    scanner.sendCommand("SCAN", "");
-    break;
+      case '2':
+        scanner.sendCommand("SLEEP", "");
+        break;
 
-  case '2':
-    scanner.sendCommand("SLEEP", "");
-    break;
+      case '3':
+        Serial.println("White scan light on");
+        scanner.lightOn();
+        break;
 
-  case '3':
-    scanner.sendCommand("LAMENA", "1");
-    //scanner.lightOn();
-    break;
+      case '4':
+        Serial.println("White scan light off");
+        scanner.lightOff();
+        break;
 
-  case '4':
-    scanner.sendCommand("LAMENA", "0");
-    //scanner.lightOff();
-    break;
+      case '5':
+        //readingArea();
+        break;
 
-  case '5':
-    //readingArea();
-    break;
+      case '6':
+        //readingMode();
+        break;
 
-  case '6':
-    //readingMode();
-    break;
+      case '7':
+        //symbologies();
+        break;
 
-  case '7':
-    //symbologies();
-    break;
-
-  default:
-    Serial.println("Command not recognized");
-    break;
+      default:
+        Serial.println("Command not recognized");
+        break;
+    }
   }
 }
 
 void reticle()
 {
-  Serial.println("...");
-  Serial.println("...");
-  Serial.println("...");
+  Serial.println();
   Serial.println("-------------------------------------");
   Serial.println("1) Enable Reticle");
   Serial.println("2) Disable Reticle");
   Serial.println("-------------------------------------");
   Serial.println("Select an option number:");
 
-  while (!Serial.available())
+  while (Serial.available() == false)
   {
-  };
+    //Wait for user to send char
+  }
 
   char response = Serial.read();
 
-  delay(10);
-
-  while (Serial.available())
-  {
-    Serial.read();
-    delay(10);
-  };
-
-  switch (response)
+  //Throw out newline and return chars
+  if (response != '\r' && response != '\n')
   {
 
-  case '1':
-    scanner.reticleOn();
-    break;
+    switch (response)
+    {
+      case '1':
+        scanner.reticleOn();
+        break;
 
-  case '2':
-    scanner.reticleOff();
-    break;
+      case '2':
+        scanner.reticleOff();
+        break;
 
-  default:
-    Serial.println("Command not recognized");
-    break;
+      default:
+        Serial.println("Command not recognized");
+        break;
+    }
   }
 }
 
 /*
-void readingArea()
-{
+  void readingArea()
+  {
   Serial.println("...");
   Serial.println("...");
   Serial.println("...");
@@ -170,9 +162,9 @@ void readingArea()
   Serial.println("4) Center 40%");
   Serial.println("5) Center 20%");
   Serial.println("-------------------------------------");
-  Serial.println("Select an option number:"); 
+  Serial.println("Select an option number:");
 
- while(!Serial.available()){};
+  while(!Serial.available()){};
 
   char response = Serial.read();
 
@@ -205,11 +197,11 @@ void readingArea()
     default:
       Serial.println("Command not recognized");
       return;
-  }   
-}
+  }
+  }
 
-void readingMode()
-{
+  void readingMode()
+  {
   Serial.println("...");
   Serial.println("...");
   Serial.println("...");
@@ -218,16 +210,16 @@ void readingMode()
   Serial.println("2) Continuous Read Mode");
   Serial.println("3) Motion Sensor Mode");
   Serial.println("-------------------------------------");
-  Serial.println("Select an option number:"); 
+  Serial.println("Select an option number:");
 
- while(!Serial.available()){};
+  while(!Serial.available()){};
 
    char response = Serial.read();
 
    delay(10);
 
   while(Serial.available()){Serial.read(); delay(10);};
-  
+
   switch(response){
 
     case '1':
@@ -245,12 +237,12 @@ void readingMode()
     default:
       Serial.println("Command not recognized");
       return;
-  }   
-}
+  }
+  }
 
-void symbologies()
-{
+  void symbologies()
+  {
 
-}
+  }
 
 */

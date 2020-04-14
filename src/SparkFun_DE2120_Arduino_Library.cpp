@@ -28,7 +28,7 @@
 #include <SoftwareSerial.h>
 
 //Constructor
-DE2120::DE2120()
+DE2120::DE2120(void)
 {
 }
 
@@ -113,6 +113,16 @@ bool DE2120::isConnected()
 bool DE2120::factoryDefault()
 {
   return (sendCommand(COMMAND_SET_DEFAULTS));
+}
+
+bool DE2120::available()
+{
+  return _serial->available();
+}
+
+int DE2120::read()
+{
+  return _serial->read();
 }
 
 // Construct a command or parameter and send it to the
