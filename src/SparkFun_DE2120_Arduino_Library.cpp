@@ -119,7 +119,7 @@ bool DE2120::factoryDefault()
 // module, then check the serial buffer for a response.
 // Return TRUE if response contains ACK character, else
 // return FALSE
-bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
+bool DE2120::sendCommand(const char *cmd, const char *arg, uint32_t maxWaitInms)
 {
   char commandString[14] = {'\0'};
   char start[] = "^_^";
@@ -189,7 +189,7 @@ bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
 }
 
 // Change the serial baud rate for the barcode module (default 115200)
-bool DE2120::changeBaudRate(uint16_t baud)
+bool DE2120::changeBaudRate(uint32_t baud)
 {
   uint8_t arg = 10;
   switch (baud)

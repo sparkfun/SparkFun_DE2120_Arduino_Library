@@ -171,9 +171,9 @@ public:
   bool isConnected();   //Returns true if device's ID is what it should be
   uint8_t getVersion(); //Queries device for its Version #
   bool factoryDefault();
-  bool sendCommand(char *cmd, char *arg = "", uint32_t maxWaitInms = 3000);
+  bool sendCommand(const char *cmd, const char *arg = "", uint32_t maxWaitInms = 3000);
   bool readBarcode(char *resultBuffer, uint8_t size);
-  bool changeBaudRate(uint16_t baud);
+  bool changeBaudRate(uint32_t baud);
   bool changeBuzzerTone(uint8_t tone);
   bool enableDecodeBeep();
   bool disableDecodeBeep();
