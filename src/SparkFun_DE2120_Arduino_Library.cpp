@@ -186,41 +186,44 @@ bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
     else
       return false;
   }
+
+  return (false);
 }
 
 // Change the serial baud rate for the barcode module (default 115200)
 bool DE2120::changeBaudRate(uint32_t baud)
 {
-  uint8_t arg = 10;
+  char arg[2] = {'0', '\0'};
+
   switch (baud)
   {
   case 1200:
-    arg = 2;
+    arg[0] = '2';
     break;
   case 2400:
-    arg = 3;
+    arg[0] = '3';
     break;
   case 4800:
-    arg = 4;
+    arg[0] = '4';
     break;
   case 9600:
-    arg = 5;
+    arg[0] = '5';
     break;
   case 19200:
-    arg = 6;
+    arg[0] = '6';
     break;
   case 38400:
-    arg = 7;
+    arg[0] = '7';
     break;
   case 57600:
-    arg = 8;
+    arg[0] = '8';
     break;
   case 115200:
-    arg = 9;
+    arg[0] = '9';
     break;
   }
   // only change baud rate if a valid value is passed
-  if (arg < 10)
+  if (arg[0] != '0')
   {
     return (sendCommand(PROPERTY_BAUD_RATE, arg));
   }
@@ -233,7 +236,9 @@ bool DE2120::changeBuzzerTone(uint8_t tone)
   // only change if a valid value is passed
   if (tone > 0 && tone < 4)
   {
-    return (sendCommand(PROPERTY_BUZZER_FREQ, '0' + tone)); // conv single-digit int to char by adding to '0'
+    char strTone[2] = {0, '\0'};
+    strTone[0] = '0' + tone;
+    return (sendCommand(PROPERTY_BUZZER_FREQ, strTone));
   }
   return (false);
 }
@@ -281,27 +286,27 @@ bool DE2120::reticleOff()
 // Change the percentage of the frame to scan for barcodes
 bool DE2120::changeReadingArea(uint8_t percent)
 {
-  uint8_t arg = 5;
+  char arg[2] = {0, '\0'};
   switch (percent)
   {
   case 100:
-    arg = 0;
+    arg[0] = '0';
     break;
   case 80:
-    arg = 1;
+    arg[0] = '1';
     break;
   case 60:
-    arg = 2;
+    arg[0] = '2';
     break;
   case 40:
-    arg = 3;
+    arg[0] = '3';
     break;
   case 20:
-    arg = 4;
+    arg[0] = '4';
     break;
   }
   // only change if a valid value is passed
-  if (arg < 5)
+  if (arg[0] != 0)
   {
     return (sendCommand(PROPERTY_READING_AREA, arg));
   }
@@ -338,7 +343,11 @@ bool DE2120::enableContinuousRead(uint8_t repeatInterval)
   if (repeatInterval < 4)
   {
     sendCommand(PROPERTY_READING_MODE, "CNT");
-    return (sendCommand(PROPERTY_CONTINUOUS_MODE_INTERVAL, '0' + repeatInterval)); // conv single-digit int to char by adding to '0'
+
+    char strRepeatInterval[2] = {0, '\0'};
+    strRepeatInterval[0] = '0' + repeatInterval;
+
+    return (sendCommand(PROPERTY_CONTINUOUS_MODE_INTERVAL, strRepeatInterval));
   }
   return (false);
 }
@@ -354,8 +363,31 @@ bool DE2120::enableMotionSense(uint8_t sensitivity)
   // reject invalid sensitivity values
   if (sensitivity == 15 || sensitivity == 20 || sensitivity == 30 || sensitivity == 50 || sensitivity == 100)
   {
+    char commandString[4] = {'\0'}; //Max is 100\0
+
+    switch (sensitivity)
+    {
+    case (15):
+      strcat(commandString, "15");
+      break;
+    case (20):
+      strcat(commandString, "20");
+      break;
+    case (30):
+      strcat(commandString, "30");
+      break;
+    case (50):
+      strcat(commandString, "50");
+      break;
+    case (100):
+      strcat(commandString, "100");
+      break;
+    default:
+      break;
+    }
+
     sendCommand(PROPERTY_READING_MODE, "MDH");
-    return (sendCommand(PROPERTY_COMM_MODE, '0' + sensitivity)); // conv single-digit int to char by adding to '0'
+    return (sendCommand(PROPERTY_COMM_MODE, commandString));
   }
   return (false);
 }
