@@ -67,17 +67,15 @@ bool DE2120::begin(SoftwareSerial &serialPort)
 bool DE2120::isConnected()
 {
   //Attempt initial comm at 9600
-  _baudRate = 9600;
-
   if (hwStream)
-    hwStream->begin(_baudRate);
+    hwStream->begin(9600);
   else
-    swStream->begin(_baudRate);
+    swStream->begin(9600);
 
-  if (sendCommand(COMMAND_GET_VERSION, "", 800))
+  if (sendCommand(COMMAND_GET_VERSION, "", 800)) //Takes ~430ms to get firmware version response
     return (true);
 
-  //If we failed, try again at the factory default of 115200
+  //If we failed, try again at the factory default of 115200bps
   if (hwStream)
     hwStream->begin(115200);
   else
@@ -85,21 +83,18 @@ bool DE2120::isConnected()
 
   delay(10);
 
-  sendCommand(PROPERTY_BAUD_RATE, "5", 3000); //Goto 9600bps
+  sendCommand(PROPERTY_BAUD_RATE, "5", 500); //Goto 9600bps
+  //300ms is too quick for module to switch to new setting
 
+  //Return to 9600bps
   if (hwStream)
-    hwStream->begin(115200);
+    hwStream->begin(9600);
   else
-    swStream->begin(115200);
+    swStream->begin(9600);
 
   delay(10);
 
-  sendCommand(COMMAND_GET_VERSION, "", 800);
-  Serial.print("Stop");
-  while (1)
-    ;
-
-  if (sendCommand(COMMAND_GET_VERSION, "", 800))
+  if (sendCommand(COMMAND_GET_VERSION, "", 800)) //Takes ~430ms to get firmware version response
     return (true);
 
   return (false);
@@ -129,39 +124,25 @@ bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
 
   _serial->print(commandString);
 
-  Serial.println(maxWaitInms);
-
   uint32_t timeout = millis() + maxWaitInms;
 
   while (millis() < timeout)
   {
     if (_serial->available())
     {
-      Serial.println("!");
-      bool ACK = false;
       while (_serial->available())
       {
-        if (_serial->read() == 0x06)
-        {
-          ACK = true;
-        }
-      }
-      if (ACK)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
+        byte incoming = _serial->read();
+        if (incoming == 0x06) //ACK
+          return (true);
+        else if (incoming == 0x15) //NACK
+          return (false);
       }
     }
-    else
-    {
-      return false;
-    }
+    delay(1);
   }
 
-  delay(1);
+  return (false);
 }
 
 // Check the receive buffer for serial data
