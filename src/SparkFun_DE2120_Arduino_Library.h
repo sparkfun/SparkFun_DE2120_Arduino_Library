@@ -28,6 +28,9 @@
 
 #include <SoftwareSerial.h>
 
+#define DE2120_COMMAND_ACK 0x06
+#define DE2120_COMMAND_NACK 0x15
+
 //These are the commands we can send (Prepend "^_^" and append ".")
 #define COMMAND_START_SCAN "SCAN"
 #define COMMAND_STOP_SCAN "SLEEP"
@@ -199,7 +202,6 @@ public:
 
 private:
   //char _responseBuffer[]
-  uint16_t _baudRate = 115200;
 
   HardwareSerial *hwStream;
   SoftwareSerial *swStream;

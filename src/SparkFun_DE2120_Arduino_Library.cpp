@@ -44,6 +44,10 @@ bool DE2120::begin(HardwareSerial &serialPort)
   if (isConnected() == false)
     return (false); //No device detected
 
+  //Clear any remaining incoming chars. The prevents a mis-read of the first barcode.
+  while (_serial->available())
+    _serial->read();
+
   return (true); //We're all setup!
 }
 
@@ -56,6 +60,10 @@ bool DE2120::begin(SoftwareSerial &serialPort)
 
   if (isConnected() == false)
     return (false); //No device detected
+
+  //Clear any remaining incoming chars. The prevents a mis-read of the first barcode.
+  while (_serial->available())
+    _serial->read();
 
   return (true); //We're all setup!
 }
@@ -133,9 +141,9 @@ bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
       while (_serial->available())
       {
         byte incoming = _serial->read();
-        if (incoming == 0x06) //ACK
+        if (incoming == DE2120_COMMAND_ACK)
           return (true);
-        else if (incoming == 0x15) //NACK
+        else if (incoming == DE2120_COMMAND_NACK)
           return (false);
       }
     }
@@ -154,40 +162,29 @@ bool DE2120::sendCommand(char *cmd, char *arg, uint32_t maxWaitInms)
 // reach a CR in the receive buffer.
 bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
 {
-
   if (!_serial->available())
-  {
     return false;
-  }
-  else
+
+  bool crFound = false;
+  for (uint8_t idx = 0; idx < size; idx++)
   {
-    bool crFound = false;
-    for (uint8_t idx = 0; idx < size; idx++)
+    if (resultBuffer[idx] == '\r')
+      crFound = true;
+  }
+
+  if (crFound)
+    resultBuffer[0] = 0;
+
+  for (uint8_t idx = strlen(resultBuffer); idx < size; idx++)
+  {
+    if (_serial->available())
     {
-      if (resultBuffer[idx] == 13)
-      {
-        crFound = true;
-      }
+      resultBuffer[idx] = _serial->read();
+      if (resultBuffer[idx] == '\r')
+        return true;
     }
-    if (crFound)
-    {
-      resultBuffer[0] = 0;
-    }
-    for (uint8_t idx = strlen(resultBuffer); idx < size; idx++)
-    {
-      if (_serial->available())
-      {
-        resultBuffer[idx] = _serial->read();
-        if (resultBuffer[idx] == 13)
-        {
-          return true;
-        }
-      }
-      else
-      {
-        return false;
-      }
-    }
+    else
+      return false;
   }
 }
 
