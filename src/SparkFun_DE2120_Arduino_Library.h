@@ -138,28 +138,6 @@
 #define PROPERTY_ENABLE_ALL_2D "AQRENA"
 #define PROPERTY_DISABLE_ALL_2D "AQRDIS"
 
-// Barcode Symbologies Enable/Disable
-// 0 - disable
-// 1 - enable
-#define PROPERTY_ENABLE_UPCA "UPAENA"
-#define PROPERTY_ENABLE_UPCE "UPEENA"
-#define PROPERTY_ENABLE_EAN8 "EA8ENA"
-#define PROPERTY_ENABLE_EAN13 "E13ENA"
-#define PROPERTY_ENABLE_CODE128 "128ENA"
-#define PROPERTY_ENABLE_GS1128 "GS1ENA"
-#define PROPERTY_ENABLE_CODE39 "C39ENA"
-#define PROPERTY_ENABLE_CODE93 "C93ENA"
-#define PROPERTY_ENABLE_CODE11 "C11ENA"
-#define PROPERTY_ENABLE_INT2OF5 "I25ENA"
-#define PROPERTY_ENABLE_MATRIX2OF5 "M25ENA"
-#define PROPERTY_ENABLE_GS1DATABAR "GS1DBE"
-#define PROPERTY_ENABLE_CHINAPOST "D25ENA"
-#define PROPERTY_ENABLE_QRCODE "QRCENA"
-#define PROPERTY_ENABLE_DATAMATRIX "DMCENA"
-#define PROPERTY_ENABLE_PDF417 "PDFENA"
-#define PROPERTY_ENABLE_MICROPDF417 "MCFENA"
-#define PROPERTY_ENABLE_AZTEC "AZTENA"
-
 class DE2120
 {
 public:
@@ -197,10 +175,8 @@ public:
   bool disableAll1D();
   bool enableAll2D();
   bool disableAll2D();
-  bool startRead();
-  bool stopRead();
-  void enableSymbology(char* symbology);
-  void disableSymbology(char* symbology);
+  bool startScan();
+  bool stopScan();
 
 private:
   //char _responseBuffer[]

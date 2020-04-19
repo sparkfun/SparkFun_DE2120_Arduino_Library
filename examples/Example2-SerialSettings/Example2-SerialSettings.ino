@@ -80,11 +80,11 @@ void loop()
     {
 
       case '1':
-        scanner.sendCommand("SCAN", "");
+        scanner.startScan();
         break;
 
       case '2':
-        scanner.sendCommand("SLEEP", "");
+        scanner.stopScan();
         break;
 
       case '3':

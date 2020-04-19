@@ -430,11 +430,11 @@ bool DE2120::disableAll2D()
 
 // Start or stop reading when in Trigger Mode (DEFAULT)
 // Module will automatically stop reading after a few seconds
-bool DE2120::startRead()
+bool DE2120::startScan()
 {
   return (sendCommand(COMMAND_START_SCAN));
 }
-bool DE2120::stopRead()
+bool DE2120::stopScan()
 {
   return (sendCommand(COMMAND_STOP_SCAN));
 }
