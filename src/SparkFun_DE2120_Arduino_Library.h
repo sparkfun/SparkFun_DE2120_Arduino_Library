@@ -189,9 +189,9 @@ public:
   bool enableImageFlipping();
   bool disableImageFlipping();
   bool USBMode(char *mode);
-  bool enableContinuousRead(uint8_t repeatInterval);
+  bool enableContinuousRead(uint8_t repeatInterval = 2);
   bool disableContinuousRead();
-  bool enableMotionSense(uint8_t sensitivity);
+  bool enableMotionSense(uint8_t sensitivity = 50);
   bool disableMotionSense();
   bool enableAll1D();
   bool disableAll1D();
@@ -199,8 +199,8 @@ public:
   bool disableAll2D();
   bool startRead();
   bool stopRead();
-  //void enableSymbology(char* symbology);
-  //void disableSymbology(char* symbology);
+  void enableSymbology(char* symbology);
+  void disableSymbology(char* symbology);
 
 private:
   //char _responseBuffer[]

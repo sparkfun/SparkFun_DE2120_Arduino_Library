@@ -30,7 +30,7 @@
 //Constructor
 DE2120::DE2120(void)
 {
-}
+}  
 
 //Initializes the device with basic settings
 //Returns false if device is not detected
@@ -166,8 +166,7 @@ bool DE2120::sendCommand(const char *cmd, const char *arg, uint32_t maxWaitInms)
 // Check the receive buffer for serial data
 // from the barcode scanner. If there's data,
 // check the result buffer for a CR (marks a
-// complete scan) and if it contains none, add
-// to it. If a CR is found, we overwrite the
+// complete scan) If a CR is found, we overwrite the
 // result buffer until either it's full or we
 // reach a CR in the receive buffer.
 bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
@@ -183,7 +182,7 @@ bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
   }
 
   if (crFound)
-    resultBuffer[0] = 0;
+    resultBuffer[0] = '\0';
 
   for (uint8_t idx = strlen(resultBuffer); idx < size; idx++)
   {
@@ -191,7 +190,10 @@ bool DE2120::readBarcode(char *resultBuffer, uint8_t size)
     {
       resultBuffer[idx] = _serial->read();
       if (resultBuffer[idx] == '\r')
+      {
+        resultBuffer[idx+1] = '\0';
         return true;
+      }
     }
     else
       return false;
@@ -436,125 +438,3 @@ bool DE2120::stopRead()
 {
   return (sendCommand(COMMAND_STOP_SCAN));
 }
-
-/*
-  // Enable or Disable particular barcode symbologies
-  void DE2120::enableSymbology(char* symbology)
-  {
-  switch(symbology){
-    case "UPCA":
-      sendCommand(PROPERTY_ENABLE_UPCA, "1");
-      break;
-    case "UPCE":
-      sendCommand(PROPERTY_ENABLE_UPCE, "1");
-      break;
-    case "EAN8":
-      sendCommand(PROPERTY_ENABLE_EAN8, "1");
-      break;
-    case "EAN13":
-      sendCommand(PROPERTY_ENABLE_EAN13, "1");
-      break;
-    case "CODE128":
-      sendCommand(PROPERTY_ENABLE_CODE128, "1");
-      break;
-    case "GS1128":
-      sendCommand(PROPERTY_ENABLE_GS1128, "1");
-      break;
-    case "CODE39":
-      sendCommand(PROPERTY_ENABLE_CODE39, "1");
-      break;
-    case "CODE93":
-      sendCommand(PROPERTY_ENABLE_CODE93, "1");
-      break;
-    case "CODE11":
-      sendCommand(PROPERTY_ENABLE_CODE11, "1");
-      break;
-    case "INT2OF5":
-      sendCommand(PROPERTY_ENABLE_INT2OF5, "1");
-      break;
-    case "MATRIX2OF5":
-      sendCommand(PROPERTY_ENABLE_MATRIX2OF5, "1");
-      break;
-    case "GS1DATABAR":
-      sendCommand(PROPERTY_ENABLE_GS1DATABAR, "1");
-      break;
-    case "CHINAPOST":
-      sendCommand(PROPERTY_ENABLE_CHINAPOST, "1");
-      break;
-    case "QRCODE":
-      sendCommand(PROPERTY_ENABLE_QRCODE, "1");
-      break;
-    case "DATAMATRIX":
-      sendCommand(PROPERTY_ENABLE_DATAMATRIX, "1");
-      break;
-    case "PDF417":
-      sendCommand(PROPERTY_ENABLE_PDF417, "1");
-      break;
-    case "MICROPDF417":
-      sendCommand(PROPERTY_ENABLE_MICROPDF417, "1");
-      break;
-    case "AZTEC":
-      sendCommand(PROPERTY_ENABLE_AZTEC, "1");
-      break;
-  }
-  }
-  void DE2120::disableSymbology(char* symbology)
-  {
-  switch(symbology){
-    case "UPCA":
-      sendCommand(PROPERTY_ENABLE_UPCA, "0");
-      break;
-    case "UPCE":
-      sendCommand(PROPERTY_ENABLE_UPCE, "0");
-      break;
-    case "EAN8":
-      sendCommand(PROPERTY_ENABLE_EAN8, "0");
-      break;
-    case "EAN13":
-      sendCommand(PROPERTY_ENABLE_EAN13, "0");
-      break;
-    case "CODE128":
-      sendCommand(PROPERTY_ENABLE_CODE128, "0");
-      break;
-    case "GS1128":
-      sendCommand(PROPERTY_ENABLE_GS1128, "0");
-      break;
-    case "CODE39":
-      sendCommand(PROPERTY_ENABLE_CODE39, "0");
-      break;
-    case "CODE93":
-      sendCommand(PROPERTY_ENABLE_CODE93, "0");
-      break;
-    case "CODE11":
-      sendCommand(PROPERTY_ENABLE_CODE11, "0");
-      break;
-    case "INT2OF5":
-      sendCommand(PROPERTY_ENABLE_INT2OF5, "0");
-      break;
-    case "MATRIX2OF5":
-      sendCommand(PROPERTY_ENABLE_MATRIX2OF5, "0");
-      break;
-    case "GS1DATABAR":
-      sendCommand(PROPERTY_ENABLE_GS1DATABAR, "0");
-      break;
-    case "CHINAPOST":
-      sendCommand(PROPERTY_ENABLE_CHINAPOST, "0");
-      break;
-    case "QRCODE":
-      sendCommand(PROPERTY_ENABLE_QRCODE, "0");
-      break;
-    case "DATAMATRIX":
-      sendCommand(PROPERTY_ENABLE_DATAMATRIX, "0");
-      break;
-    case "PDF417":
-      sendCommand(PROPERTY_ENABLE_PDF417, "0");
-      break;
-    case "MICROPDF417":
-      sendCommand(PROPERTY_ENABLE_MICROPDF417, "0");
-      break;
-    case "AZTEC":
-      sendCommand(PROPERTY_ENABLE_AZTEC, "0");
-      break;
-  }
-  }
-*/

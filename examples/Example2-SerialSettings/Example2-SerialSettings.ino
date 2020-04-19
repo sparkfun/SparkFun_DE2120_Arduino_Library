@@ -30,8 +30,6 @@ DE2120 scanner;
 #define BUFFER_LEN 40
 char scanBuffer[BUFFER_LEN];
 
-bool continuousScan = false;
-
 void setup()
 {
   Serial.begin(115200);
@@ -48,35 +46,41 @@ void setup()
 
 void loop()
 {
+  flushRx(); // Clear the serial rx buffer to avoid line endings
+  
   Serial.println();
   Serial.println("SparkFun DE2120 Barcode Scanner Library");
   Serial.println("-------------------------------------");
   Serial.println("1) Start Scan");
   Serial.println("2) Stop Scan");
-  Serial.println("3) Enable Flashlight");
-  Serial.println("4) Disable Flashlight");
+  Serial.println("3) Enable/Disable Flashlight");
+  Serial.println("4) Enable/Disable Aiming Reticle");
   Serial.println("5) Set Reading Area");
   Serial.println("6) Set Reading Mode");
   Serial.println("7) Enable Disable Symbologies");
   Serial.println("-------------------------------------");
-  Serial.print("Select an option number: ");
+  Serial.println("Select an option number: ");
 
+  // Wait for the user to reply but look for barcodes in the meantime
   while (Serial.available() == false)
   {
-    //Wait for user to send char
+      if (scanner.readBarcode(scanBuffer, BUFFER_LEN))
+    {
+      Serial.println("...");
+      Serial.print("Code found: ");
+      for (int i = 0; i < strlen(scanBuffer); i++)
+        Serial.print(scanBuffer[i]);
+      Serial.println();
+    }
+  
+    delay(200);
   }
 
-  char response = Serial.read();
-
-  //Throw out newline and return chars
-  if (response != '\r' && response != '\n')
-  {
-    switch (response)
+    switch (Serial.read())
     {
 
       case '1':
         scanner.sendCommand("SCAN", "");
-        continuousScan = true;
         break;
 
       case '2':
@@ -84,36 +88,70 @@ void loop()
         break;
 
       case '3':
-        Serial.println("White scan light on");
-        scanner.lightOn();
+        flashlight();
         break;
 
       case '4':
-        Serial.println("White scan light off");
-        scanner.lightOff();
+        reticle();
         break;
 
       case '5':
-        //readingArea();
+        readingArea();
         break;
 
       case '6':
-        //readingMode();
+        readingMode();
         break;
 
       case '7':
-        //symbologies();
+        symbologies();
         break;
 
       default:
         Serial.println("Command not recognized");
         break;
     }
-  }
 }
+
+void flashlight()
+{
+  flushRx(); // Clear the serial rx buffer to avoid line endings
+  
+  Serial.println();
+  Serial.println("-------------------------------------");
+  Serial.println("1) Enable Flashlight");
+  Serial.println("2) Disable Flashlight");
+  Serial.println("-------------------------------------");
+  Serial.println("Select an option number:");
+
+  while (Serial.available() == false)
+  {
+    //Wait for user to send char
+  }
+
+    switch (Serial.read())
+    {
+      case '1':
+        Serial.println("White scan light on");
+        scanner.lightOn();
+        break;
+
+      case '2':
+        Serial.println("White scan light off");
+        scanner.lightOff();
+        break;
+
+      default:
+        Serial.println("Command not recognized");
+        break;
+    }
+}
+
 
 void reticle()
 {
+  flushRx(); // Clear the serial rx buffer to avoid line endings
+  
   Serial.println();
   Serial.println("-------------------------------------");
   Serial.println("1) Enable Reticle");
@@ -126,19 +164,15 @@ void reticle()
     //Wait for user to send char
   }
 
-  char response = Serial.read();
-
-  //Throw out newline and return chars
-  if (response != '\r' && response != '\n')
-  {
-
-    switch (response)
+    switch (Serial.read())
     {
       case '1':
+        Serial.println("Red scan reticle on");
         scanner.reticleOn();
         break;
 
       case '2':
+      Serial.println("Red scan reticle off");
         scanner.reticleOff();
         break;
 
@@ -146,12 +180,14 @@ void reticle()
         Serial.println("Command not recognized");
         break;
     }
-  }
+  
 }
 
-/*
   void readingArea()
   {
+
+  flushRx(); // Clear the serial rx buffer to avoid line endings
+    
   Serial.println("...");
   Serial.println("...");
   Serial.println("...");
@@ -164,33 +200,35 @@ void reticle()
   Serial.println("-------------------------------------");
   Serial.println("Select an option number:");
 
-  while(!Serial.available()){};
-
-  char response = Serial.read();
-
-  delay(10);
-
-  while(Serial.available()){Serial.read(); delay(10);};
-
-  switch(response){
+  while (Serial.available() == false)
+  {
+    //Wait for user to send char
+  }
+  
+  switch(Serial.read()){
 
     case '1':
+      Serial.println("Scanning 100% of frame");
       scanner.changeReadingArea(100);
       return;
 
     case '2':
+      Serial.println("Scanning center 80% of frame");
       scanner.changeReadingArea(80);
       return;
 
     case '3':
+      Serial.println("Scanning center 60% of frame");
       scanner.changeReadingArea(60);
       return;
 
     case '4':
+      Serial.println("Scanning center 40% of frame");
       scanner.changeReadingArea(40);
       return;
 
     case '5':
+      Serial.println("Scanning center 20% of frame");
       scanner.changeReadingArea(20);
       return;
 
@@ -202,6 +240,8 @@ void reticle()
 
   void readingMode()
   {
+  flushRx(); // Clear the serial rx buffer to avoid line endings
+    
   Serial.println("...");
   Serial.println("...");
   Serial.println("...");
@@ -212,25 +252,25 @@ void reticle()
   Serial.println("-------------------------------------");
   Serial.println("Select an option number:");
 
-  while(!Serial.available()){};
+  while (Serial.available() == false)
+  {
+    //Wait for user to send char
+  }
 
-   char response = Serial.read();
-
-   delay(10);
-
-  while(Serial.available()){Serial.read(); delay(10);};
-
-  switch(response){
+  switch(Serial.read()){
 
     case '1':
+      Serial.println("Manual Trigger Mode enabled");
       scanner.disableMotionSense();
       return;
 
     case '2':
+      Serial.println("Continuous Read Mode enabled");
       scanner.enableContinuousRead();
       return;
 
     case '3':
+      Serial.println("Motion Trigger Mode enabled");
       scanner.enableMotionSense();
       return;
 
@@ -242,7 +282,55 @@ void reticle()
 
   void symbologies()
   {
+  flushRx(); // Clear the serial rx buffer to avoid line endings
+    
+  Serial.println("...");
+  Serial.println("...");
+  Serial.println("...");
+  Serial.println("-------------------------------------");
+  Serial.println("1) Enable All 1D Symbologies");
+  Serial.println("2) Disable All 1D Symbologies");
+  Serial.println("3) Enable All 2D Symbologies");
+  Serial.println("4) Disable All 2D Symbologies");
+  Serial.println("-------------------------------------");
+  Serial.println("Select an option number:");
 
+  while (Serial.available() == false)
+  {
+    //Wait for user to send char
   }
 
-*/
+  switch(Serial.read()){
+
+    case '1':
+      Serial.println("1D Symbologies enabled");
+      scanner.enableAll1D();
+      return;
+
+    case '2':
+      Serial.println("1D Symbologies disabled");
+      scanner.disableAll1D();
+      return;
+
+    case '3':
+      Serial.println("2D Symbologies enabled");
+      scanner.enableAll2D();
+      return;
+
+    case '4':
+      Serial.println("2D Symbologies disabled");
+      scanner.disableAll2D();
+      return;
+
+    default:
+      Serial.println("Command not recognized");
+      return;
+  }
+  }
+
+  void flushRx(){
+    while(Serial.available()){
+      Serial.read();
+      delay(1);
+    }
+  }
