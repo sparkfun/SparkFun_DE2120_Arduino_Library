@@ -425,7 +425,7 @@ bool DE2120::enableAll2D()
 }
 bool DE2120::disableAll2D()
 {
-  return (sendCommand(PROPERTY_ENABLE_ALL_2D));
+  return (sendCommand(PROPERTY_DISABLE_ALL_2D));
 }
 
 // Start or stop reading when in Trigger Mode (DEFAULT)
